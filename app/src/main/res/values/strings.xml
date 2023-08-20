@@ -5,4 +5,12 @@
     <string name="Add_Task">Add Task</string>
     <string name="AllTasks">All Tasks</string>
     <string name="SubmitButton">Submit</string>
+    <string name="TaskDetailTitle">Task Detail</string>
+    <string name="LoremIpsum">Lorem Ipsum</string>
+    <string name="Username">Username</string>
+    <string name="save">save</string>
+    <string name="Save">Save</string>
+    <string name="task1">task1</string>
+    <string name="task2">task2</string>
+    <string name="task3">task3</string>
 </resources>

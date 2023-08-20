@@ -17,36 +17,65 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="308dp"
-        android:layout_height="426dp"
-        android:layout_marginBottom="16dp"
-        android:contentDescription="@string/placeholder_image"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.496"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/MainActivityLabelTextView"
-        tools:srcCompat="@tools:sample/avatars" />
-
     <Button
         android:id="@+id/AddTaskButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="80dp"
-        android:layout_marginTop="63dp"
+        android:layout_marginBottom="36dp"
         android:text="@string/Add_Task"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/AllTasks"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="63dp"
         android:layout_marginEnd="66dp"
+        android:layout_marginBottom="36dp"
         android:text="@string/AllTasks"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <ImageView
+        android:id="@+id/mainActivitySettingsButton"
+        android:layout_width="77dp"
+        android:layout_height="68dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="40dp"
+        android:background="#03A9F4"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@android:drawable/ic_menu_manage" />
+
+    <Button
+        android:id="@+id/task1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/task1"
+        app:layout_constraintBottom_toTopOf="@+id/task2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/task2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/task2"
+        app:layout_constraintBottom_toTopOf="@+id/task3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/task1" />
+
+    <Button
+        android:id="@+id/task3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/task3"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/task2" />
 </androidx.constraintlayout.widget.ConstraintLayout>

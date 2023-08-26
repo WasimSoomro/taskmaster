@@ -1,4 +1,4 @@
-package com.wasim.taskmaster.activities.fragments;
+package com.wasim.taskmaster.fragments;
 
 import android.os.Bundle;
 

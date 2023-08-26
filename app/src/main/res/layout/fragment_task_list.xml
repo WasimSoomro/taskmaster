@@ -5,7 +5,7 @@
     android:layout_width="320dp"
     android:layout_height="48dp"
     android:background="#F44336"
-    tools:context=".activities.fragments.TaskListFragment">
+    tools:context=".fragments.TaskListFragment">
 
     <TextView
         android:id="@+id/taskFragmentTextView"

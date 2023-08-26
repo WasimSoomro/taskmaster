@@ -1,5 +1,4 @@
-package com.wasim.taskmaster.activities.adapters;
-import static com.wasim.taskmaster.MainActivity.TASK_TITLE_EXTRA_TAG;
+package com.wasim.taskmaster.adapters;
 
 import android.content.Context;
 import android.content.Intent;
@@ -14,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.wasim.taskmaster.MainActivity;
 import com.wasim.taskmaster.R;
 import com.wasim.taskmaster.activities.TaskDetailActivity;
-import com.wasim.taskmaster.activities.models.Task;
+import com.wasim.taskmaster.models.Task;
 
 import java.util.List;
 
@@ -37,7 +36,11 @@ public class TaskListRecyclerViewAdapter extends RecyclerView.Adapter<TaskListRe
     public void onBindViewHolder(@NonNull TaskListViewHolder holder, int position) {
 
         TextView taskFragmentTextView = (TextView) holder.itemView.findViewById(R.id.taskFragmentTextView);
-        String taskFragmentText = (position+1) + ". " + tasks.get(position).getTitle();
+        String taskFragmentText = (position+1) + ". " + tasks.get(position).getTitle()
+        + "\n" + tasks.get(position).getBody()
+        + "\n" + tasks.get(position).getDateCreated()
+        + "\n" + tasks.get(position).getCategory();
+
         taskFragmentTextView.setText(taskFragmentText);
 
         View taskViewHolder = holder.itemView;
@@ -45,6 +48,8 @@ public class TaskListRecyclerViewAdapter extends RecyclerView.Adapter<TaskListRe
             Intent goToTaskIntent = new Intent(callingActivity, TaskDetailActivity.class);
             //I followed along with video at 2:58:40
             goToTaskIntent.putExtra(MainActivity.TASK_TITLE_EXTRA_TAG, tasks.get(position).getTitle());
+            goToTaskIntent.putExtra(MainActivity.TASK_DESCRIPTION_EXTRA_TAG, tasks.get(position).getBody());
+            goToTaskIntent.putExtra(MainActivity.TASK_STATE_EXTRA_TAG, tasks.get(position).getState());
             callingActivity.startActivity(goToTaskIntent);
         });
 

@@ -6,24 +6,25 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Room;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.wasim.taskmaster.activities.AddTask;
+import com.wasim.taskmaster.activities.AddTaskActivity;
 import com.wasim.taskmaster.activities.AllTasks;
 import com.wasim.taskmaster.activities.SettingsActivity;
 import com.wasim.taskmaster.activities.TaskDetailActivity;
-import com.wasim.taskmaster.activities.adapters.TaskListRecyclerViewAdapter;
-import com.wasim.taskmaster.activities.models.Task;
+import com.wasim.taskmaster.adapters.TaskListRecyclerViewAdapter;
+import com.wasim.taskmaster.database.TaskmasterDatabase;
+import com.wasim.taskmaster.models.Task;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,28 +34,37 @@ public class MainActivity extends AppCompatActivity {
     private final String TAG = "MainActivity";
     //Ask for TA Help on line 35, I just added it, 2:57:19 Rey said we added it yesterday, I didn't add it
     public static final String TASK_TITLE_EXTRA_TAG = "taskTitle";
+    public static final String TASK_DESCRIPTION_EXTRA_TAG = "taskDescription";
+    public static final String TASK_STATE_EXTRA_TAG = "taskState";
+
 
     SharedPreferences preferences;
 
     List<Task> tasks = new ArrayList<>();
 
+    TaskmasterDatabase taskmasterDatabase;
+    public static final String DATABASE_NAME = "wasim_taskmaster";
+    TaskListRecyclerViewAdapter adapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        setupDatabase();
         setupAddTaskButton();
         setupAllTaskButton();
         setupSettingsButton();
-        setupTaskOneButton();
+//        setupTaskOneButton();
         setupRecyclerView();
-        createTaskInstances();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         setupRepopulateUsername();
+        updateTaskListFromDatabase();
     }
 
     void setupRepopulateUsername() {
@@ -62,6 +72,17 @@ public class MainActivity extends AppCompatActivity {
         String userName = preferences.getString(USERNAME_TAG, "Need Username");
         TextView repopulateUsername = findViewById(R.id.MainActivityLabelTextView);
         repopulateUsername.setText(userName + "'s Tasks");
+    }
+
+    void setupDatabase(){
+        taskmasterDatabase = Room.databaseBuilder(
+                getApplicationContext(),
+                TaskmasterDatabase.class,
+                DATABASE_NAME)
+                .fallbackToDestructiveMigration()
+                .allowMainThreadQueries()
+                .build();
+        tasks = taskmasterDatabase.taskDao().findAll();
     }
 
     void setupAllTaskButton() {
@@ -73,9 +94,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void setupAddTaskButton() {
-        Button addTaskButton = findViewById(R.id.AddTaskButton);
+        Button addTaskButton = findViewById(R.id.MainActivityMoveToAddTaskButton);
         addTaskButton.setOnClickListener(view -> {
-            Intent goToAddTasksIntent = new Intent(MainActivity.this, AddTask.class);
+            Intent goToAddTasksIntent = new Intent(MainActivity.this, AddTaskActivity.class);
             startActivity(goToAddTasksIntent);
         });
     }
@@ -88,15 +109,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    void setupTaskOneButton() {
-        Button taskOneButton = findViewById(R.id.task1);
-        taskOneButton.setOnClickListener(view -> {
-            String taskName = taskOneButton.getText().toString();
-            Intent goToTaskDetailIntent = new Intent(MainActivity.this, TaskDetailActivity.class);
-            goToTaskDetailIntent.putExtra(Task_One, taskName);
-            startActivity(goToTaskDetailIntent);
-        });
-    }
     void setupRecyclerView() {
             RecyclerView taskListRecyclerView = (RecyclerView) findViewById(R.id.MainActivityTaskRecyclerView);
             RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
@@ -116,14 +128,14 @@ public class MainActivity extends AppCompatActivity {
             });
 
 
-        TaskListRecyclerViewAdapter adapter = new TaskListRecyclerViewAdapter(tasks, this);
+         adapter = new TaskListRecyclerViewAdapter(tasks, this);
             taskListRecyclerView.setAdapter(adapter);
         }
-    void createTaskInstances() {
-        tasks.add(new Task("Call T-Mobile", "Phone Credit", Task.State.NEW));
-        tasks.add(new Task("Call Chase Claims", "Wait 48 hours", Task.State.NEW));
-        tasks.add(new Task("Buy Snacks", "Morning and afternoon", Task.State.NEW));
-        }
 
+    void updateTaskListFromDatabase() {
+        tasks.clear();
+        tasks.addAll(taskmasterDatabase.taskDao().findAll());
+        adapter.notifyDataSetChanged();
 
+    }
     }

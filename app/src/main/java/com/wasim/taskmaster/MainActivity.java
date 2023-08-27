@@ -6,25 +6,25 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.room.Room;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.amplifyframework.api.graphql.model.ModelQuery;
+import com.amplifyframework.core.Amplify;
+import com.amplifyframework.datastore.generated.model.Task;
 import com.wasim.taskmaster.activities.AddTaskActivity;
 import com.wasim.taskmaster.activities.AllTasks;
 import com.wasim.taskmaster.activities.SettingsActivity;
-import com.wasim.taskmaster.activities.TaskDetailActivity;
 import com.wasim.taskmaster.adapters.TaskListRecyclerViewAdapter;
-import com.wasim.taskmaster.database.TaskmasterDatabase;
-import com.wasim.taskmaster.models.Task;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,11 +40,12 @@ public class MainActivity extends AppCompatActivity {
 
     SharedPreferences preferences;
 
-    List<Task> tasks = new ArrayList<>();
+    List<Task> tasks;
 
-    TaskmasterDatabase taskmasterDatabase;
-    public static final String DATABASE_NAME = "wasim_taskmaster";
+
+//    public static final String DATABASE_NAME = "wasim_taskmaster";
     TaskListRecyclerViewAdapter adapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,11 +53,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        setupDatabase();
+        tasks = new ArrayList<>();
+
         setupAddTaskButton();
         setupAllTaskButton();
         setupSettingsButton();
 //        setupTaskOneButton();
+        updateTaskListFromDatabase();
         setupRecyclerView();
     }
 
@@ -72,17 +75,6 @@ public class MainActivity extends AppCompatActivity {
         String userName = preferences.getString(USERNAME_TAG, "Need Username");
         TextView repopulateUsername = findViewById(R.id.MainActivityLabelTextView);
         repopulateUsername.setText(userName + "'s Tasks");
-    }
-
-    void setupDatabase(){
-        taskmasterDatabase = Room.databaseBuilder(
-                getApplicationContext(),
-                TaskmasterDatabase.class,
-                DATABASE_NAME)
-                .fallbackToDestructiveMigration()
-                .allowMainThreadQueries()
-                .build();
-        tasks = taskmasterDatabase.taskDao().findAll();
     }
 
     void setupAllTaskButton() {
@@ -133,9 +125,23 @@ public class MainActivity extends AppCompatActivity {
         }
 
     void updateTaskListFromDatabase() {
-        tasks.clear();
-        tasks.addAll(taskmasterDatabase.taskDao().findAll());
-        adapter.notifyDataSetChanged();
+
+        Amplify.API.query(
+                ModelQuery.list(Task.class),
+                success -> {
+                    Log.i(TAG, "Read tasks successfully!");
+                    tasks.clear();
+                    for (Task databaseTask : success.getData()) {
+                        tasks.add(databaseTask);
+                    }
+                    runOnUiThread(() ->
+                    {
+                        adapter.notifyDataSetChanged();
+                    });
+                },
+                failure -> Log.i(TAG, "Did not read tasks successfully")
+        );
+//        adapter.notifyDataSetChanged();
 
     }
     }

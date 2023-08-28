@@ -18,9 +18,11 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.amplifyframework.api.graphql.model.ModelMutation;
 import com.amplifyframework.api.graphql.model.ModelQuery;
 import com.amplifyframework.core.Amplify;
 import com.amplifyframework.datastore.generated.model.Task;
+import com.amplifyframework.datastore.generated.model.Team;
 import com.wasim.taskmaster.activities.AddTaskActivity;
 import com.wasim.taskmaster.activities.AllTasks;
 import com.wasim.taskmaster.activities.SettingsActivity;
@@ -42,8 +44,6 @@ public class MainActivity extends AppCompatActivity {
 
     List<Task> tasks;
 
-
-//    public static final String DATABASE_NAME = "wasim_taskmaster";
     TaskListRecyclerViewAdapter adapter;
 
 
@@ -55,10 +55,10 @@ public class MainActivity extends AppCompatActivity {
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         tasks = new ArrayList<>();
 
+        createTeamInstances();
         setupAddTaskButton();
         setupAllTaskButton();
         setupSettingsButton();
-//        setupTaskOneButton();
         updateTaskListFromDatabase();
         setupRecyclerView();
     }
@@ -132,7 +132,13 @@ public class MainActivity extends AppCompatActivity {
                     Log.i(TAG, "Read tasks successfully!");
                     tasks.clear();
                     for (Task databaseTask : success.getData()) {
-                        tasks.add(databaseTask);
+
+                        //IN lab, get this from settings?
+                        String teamName = "Android";
+                        if(databaseTask.getTeamP() != null
+                       && databaseTask.getTeamP().getTeamName().equals(teamName)) {
+                            tasks.add(databaseTask);
+                        }
                     }
                     runOnUiThread(() ->
                     {
@@ -141,7 +147,28 @@ public class MainActivity extends AppCompatActivity {
                 },
                 failure -> Log.i(TAG, "Did not read tasks successfully")
         );
-//        adapter.notifyDataSetChanged();
+    }
+
+    void createTeamInstances() {
+        Team team1 = Team.builder()
+                .teamName("Android")
+                .build();
+
+        Amplify.API.mutate(
+                        ModelMutation.create(team1),
+                        successResponse -> Log.i(TAG, "MainActivity.createTeamInstances(): made a team successfully"),
+                        failureResponse -> Log.i(TAG, "MainActivity.createTeamInstances(): team failed with this response: " + failureResponse)
+        );
+        Team team2 = Team.builder()
+                .teamName("IOS")
+                .build();
+
+        Amplify.API.mutate(
+                        ModelMutation.create(team2),
+                        successResponse -> Log.i(TAG, "MainActivity.createTeamInstances(): made a team successfully"),
+                        failureResponse -> Log.i(TAG, "MainActivity.createTeamInstances(): team failed with this response: " + failureResponse)
+        );
 
     }
+
     }

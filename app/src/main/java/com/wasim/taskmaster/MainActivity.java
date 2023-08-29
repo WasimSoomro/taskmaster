@@ -50,10 +50,9 @@ public class MainActivity extends AppCompatActivity {
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         tasks = new ArrayList<>();
 
-        createTeamInstances();
+//        createTeamInstances();
         setupAddTaskButton();
         setupAllTaskButton();
-        updateTaskListFromDatabase();
         setupRecyclerView();
         setupSettingsButton();
     }

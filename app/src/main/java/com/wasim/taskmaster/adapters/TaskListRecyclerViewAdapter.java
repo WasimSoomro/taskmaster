@@ -42,11 +42,11 @@ public class TaskListRecyclerViewAdapter extends RecyclerView.Adapter<TaskListRe
     public void onBindViewHolder(@NonNull TaskListViewHolder holder, int position) {
 
         TextView taskFragmentTextView = (TextView) holder.itemView.findViewById(R.id.taskFragmentTextView);
-        String dateString = formatDateString(tasks.get(position));
+//        String dateString = formatDateString(tasks.get(position));
         String taskFragmentText = (position+1) + ". " + tasks.get(position).getTitle()
         + "\n" + tasks.get(position).getBody()
 //        + "\n" + tasks.get(position).getDateCreated()
-                + "\n" + dateString
+//                + "\n" + dateString
         + "\n" + tasks.get(position).getTaskCategory();
 
         taskFragmentTextView.setText(taskFragmentText);
@@ -67,24 +67,24 @@ public class TaskListRecyclerViewAdapter extends RecyclerView.Adapter<TaskListRe
         return tasks.size();
     }
 
-    private String formatDateString(Task task) {
-        DateFormat dateCreatedIso8601InputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
-        dateCreatedIso8601InputFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        DateFormat dateCreatedOutputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        dateCreatedOutputFormat.setTimeZone(TimeZone.getDefault());
-        String dateCreatedString = "";
-
-        try {
-            Date dateCreatedJavaDate = dateCreatedIso8601InputFormat.parse(task.getDateCreated().format());
-            if (dateCreatedJavaDate != null) {
-                dateCreatedString = dateCreatedOutputFormat.format(dateCreatedJavaDate);
-            }
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        return dateCreatedString;
-    }
+//    private String formatDateString(Task task) {
+//        DateFormat dateCreatedIso8601InputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
+//        dateCreatedIso8601InputFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+//        DateFormat dateCreatedOutputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//        dateCreatedOutputFormat.setTimeZone(TimeZone.getDefault());
+//        String dateCreatedString = "";
+//
+//        try {
+//            Date dateCreatedJavaDate = dateCreatedIso8601InputFormat.parse(task.getDateCreated().format());
+//            if (dateCreatedJavaDate != null) {
+//                dateCreatedString = dateCreatedOutputFormat.format(dateCreatedJavaDate);
+//            }
+//        } catch (ParseException e) {
+//            e.printStackTrace();
+//        }
+//
+//        return dateCreatedString;
+//    }
 
     public static class TaskListViewHolder extends RecyclerView.ViewHolder {
         public TaskListViewHolder(@NonNull View itemView) {

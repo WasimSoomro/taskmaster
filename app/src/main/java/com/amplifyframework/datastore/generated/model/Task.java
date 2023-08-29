@@ -1,6 +1,7 @@
 package com.amplifyframework.datastore.generated.model;
 
 import com.amplifyframework.core.model.temporal.Temporal;
+import com.amplifyframework.core.model.annotations.BelongsTo;
 import com.amplifyframework.core.model.ModelIdentifier;
 
 import java.util.List;
@@ -25,17 +26,20 @@ import static com.amplifyframework.core.model.query.predicate.QueryField.field;
 @ModelConfig(pluralName = "Tasks", type = Model.Type.USER, version = 1, authRules = {
   @AuthRule(allow = AuthStrategy.PUBLIC, operations = { ModelOperation.CREATE, ModelOperation.UPDATE, ModelOperation.DELETE, ModelOperation.READ })
 })
+@Index(name = "byTeam", fields = {"teamId","title"})
 public final class Task implements Model {
   public static final QueryField ID = field("Task", "id");
   public static final QueryField TITLE = field("Task", "title");
   public static final QueryField BODY = field("Task", "body");
   public static final QueryField DATE_CREATED = field("Task", "dateCreated");
   public static final QueryField TASK_CATEGORY = field("Task", "taskCategory");
+  public static final QueryField TEAM_P = field("Task", "teamId");
   private final @ModelField(targetType="ID", isRequired = true) String id;
   private final @ModelField(targetType="String", isRequired = true) String title;
   private final @ModelField(targetType="String") String body;
   private final @ModelField(targetType="AWSDateTime") Temporal.DateTime dateCreated;
   private final @ModelField(targetType="TaskCategoryEnum") TaskCategoryEnum taskCategory;
+  private final @ModelField(targetType="Team") @BelongsTo(targetName = "teamId", targetNames = {"teamId"}, type = Team.class) Team teamP;
   private @ModelField(targetType="AWSDateTime", isReadOnly = true) Temporal.DateTime createdAt;
   private @ModelField(targetType="AWSDateTime", isReadOnly = true) Temporal.DateTime updatedAt;
   /** @deprecated This API is internal to Amplify and should not be used. */
@@ -64,6 +68,10 @@ public final class Task implements Model {
       return taskCategory;
   }
   
+  public Team getTeamP() {
+      return teamP;
+  }
+  
   public Temporal.DateTime getCreatedAt() {
       return createdAt;
   }
@@ -72,12 +80,13 @@ public final class Task implements Model {
       return updatedAt;
   }
   
-  private Task(String id, String title, String body, Temporal.DateTime dateCreated, TaskCategoryEnum taskCategory) {
+  private Task(String id, String title, String body, Temporal.DateTime dateCreated, TaskCategoryEnum taskCategory, Team teamP) {
     this.id = id;
     this.title = title;
     this.body = body;
     this.dateCreated = dateCreated;
     this.taskCategory = taskCategory;
+    this.teamP = teamP;
   }
   
   @Override
@@ -93,6 +102,7 @@ public final class Task implements Model {
               ObjectsCompat.equals(getBody(), task.getBody()) &&
               ObjectsCompat.equals(getDateCreated(), task.getDateCreated()) &&
               ObjectsCompat.equals(getTaskCategory(), task.getTaskCategory()) &&
+              ObjectsCompat.equals(getTeamP(), task.getTeamP()) &&
               ObjectsCompat.equals(getCreatedAt(), task.getCreatedAt()) &&
               ObjectsCompat.equals(getUpdatedAt(), task.getUpdatedAt());
       }
@@ -106,6 +116,7 @@ public final class Task implements Model {
       .append(getBody())
       .append(getDateCreated())
       .append(getTaskCategory())
+      .append(getTeamP())
       .append(getCreatedAt())
       .append(getUpdatedAt())
       .toString()
@@ -121,6 +132,7 @@ public final class Task implements Model {
       .append("body=" + String.valueOf(getBody()) + ", ")
       .append("dateCreated=" + String.valueOf(getDateCreated()) + ", ")
       .append("taskCategory=" + String.valueOf(getTaskCategory()) + ", ")
+      .append("teamP=" + String.valueOf(getTeamP()) + ", ")
       .append("createdAt=" + String.valueOf(getCreatedAt()) + ", ")
       .append("updatedAt=" + String.valueOf(getUpdatedAt()))
       .append("}")
@@ -145,6 +157,7 @@ public final class Task implements Model {
       null,
       null,
       null,
+      null,
       null
     );
   }
@@ -154,7 +167,8 @@ public final class Task implements Model {
       title,
       body,
       dateCreated,
-      taskCategory);
+      taskCategory,
+      teamP);
   }
   public interface TitleStep {
     BuildStep title(String title);
@@ -167,6 +181,7 @@ public final class Task implements Model {
     BuildStep body(String body);
     BuildStep dateCreated(Temporal.DateTime dateCreated);
     BuildStep taskCategory(TaskCategoryEnum taskCategory);
+    BuildStep teamP(Team teamP);
   }
   
 
@@ -176,6 +191,7 @@ public final class Task implements Model {
     private String body;
     private Temporal.DateTime dateCreated;
     private TaskCategoryEnum taskCategory;
+    private Team teamP;
     @Override
      public Task build() {
         String id = this.id != null ? this.id : UUID.randomUUID().toString();
@@ -185,7 +201,8 @@ public final class Task implements Model {
           title,
           body,
           dateCreated,
-          taskCategory);
+          taskCategory,
+          teamP);
     }
     
     @Override
@@ -213,6 +230,12 @@ public final class Task implements Model {
         return this;
     }
     
+    @Override
+     public BuildStep teamP(Team teamP) {
+        this.teamP = teamP;
+        return this;
+    }
+    
     /**
      * @param id id
      * @return Current Builder instance, for fluent method chaining
@@ -225,12 +248,13 @@ public final class Task implements Model {
   
 
   public final class CopyOfBuilder extends Builder {
-    private CopyOfBuilder(String id, String title, String body, Temporal.DateTime dateCreated, TaskCategoryEnum taskCategory) {
+    private CopyOfBuilder(String id, String title, String body, Temporal.DateTime dateCreated, TaskCategoryEnum taskCategory, Team teamP) {
       super.id(id);
       super.title(title)
         .body(body)
         .dateCreated(dateCreated)
-        .taskCategory(taskCategory);
+        .taskCategory(taskCategory)
+        .teamP(teamP);
     }
     
     @Override
@@ -251,6 +275,11 @@ public final class Task implements Model {
     @Override
      public CopyOfBuilder taskCategory(TaskCategoryEnum taskCategory) {
       return (CopyOfBuilder) super.taskCategory(taskCategory);
+    }
+    
+    @Override
+     public CopyOfBuilder teamP(Team teamP) {
+      return (CopyOfBuilder) super.teamP(teamP);
     }
   }
   

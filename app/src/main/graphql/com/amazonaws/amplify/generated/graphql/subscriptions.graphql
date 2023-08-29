@@ -5,6 +5,7 @@ subscription OnCreateTask($filter: ModelSubscriptionTaskFilterInput) {
     id
     title
     body
+    dateCreated
     taskCategory
     teamId
     teamP {
@@ -29,6 +30,7 @@ subscription OnUpdateTask($filter: ModelSubscriptionTaskFilterInput) {
     id
     title
     body
+    dateCreated
     taskCategory
     teamId
     teamP {
@@ -53,6 +55,7 @@ subscription OnDeleteTask($filter: ModelSubscriptionTaskFilterInput) {
     id
     title
     body
+    dateCreated
     taskCategory
     teamId
     teamP {
@@ -81,6 +84,7 @@ subscription OnCreateTeam($filter: ModelSubscriptionTeamFilterInput) {
         id
         title
         body
+        dateCreated
         taskCategory
         teamId
         createdAt
@@ -105,6 +109,7 @@ subscription OnUpdateTeam($filter: ModelSubscriptionTeamFilterInput) {
         id
         title
         body
+        dateCreated
         taskCategory
         teamId
         createdAt
@@ -129,6 +134,7 @@ subscription OnDeleteTeam($filter: ModelSubscriptionTeamFilterInput) {
         id
         title
         body
+        dateCreated
         taskCategory
         teamId
         createdAt

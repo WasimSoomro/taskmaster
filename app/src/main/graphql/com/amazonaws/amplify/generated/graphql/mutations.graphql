@@ -8,6 +8,7 @@ mutation CreateTask(
     id
     title
     body
+    dateCreated
     taskCategory
     teamId
     teamP {
@@ -35,6 +36,7 @@ mutation UpdateTask(
     id
     title
     body
+    dateCreated
     taskCategory
     teamId
     teamP {
@@ -62,6 +64,7 @@ mutation DeleteTask(
     id
     title
     body
+    dateCreated
     taskCategory
     teamId
     teamP {
@@ -93,6 +96,7 @@ mutation CreateTeam(
         id
         title
         body
+        dateCreated
         taskCategory
         teamId
         createdAt
@@ -120,6 +124,7 @@ mutation UpdateTeam(
         id
         title
         body
+        dateCreated
         taskCategory
         teamId
         createdAt
@@ -147,6 +152,7 @@ mutation DeleteTeam(
         id
         title
         body
+        dateCreated
         taskCategory
         teamId
         createdAt

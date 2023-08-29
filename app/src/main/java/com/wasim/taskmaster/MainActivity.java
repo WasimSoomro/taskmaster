@@ -32,20 +32,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    public static String Task_One;
     private final String TAG = "MainActivity";
-    //Ask for TA Help on line 35, I just added it, 2:57:19 Rey said we added it yesterday, I didn't add it
     public static final String TASK_TITLE_EXTRA_TAG = "taskTitle";
     public static final String TASK_DESCRIPTION_EXTRA_TAG = "taskDescription";
     public static final String TASK_STATE_EXTRA_TAG = "taskState";
 
-
-    SharedPreferences preferences;
-
     List<Task> tasks;
-
     TaskListRecyclerViewAdapter adapter;
 
+    SharedPreferences preferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,9 +53,9 @@ public class MainActivity extends AppCompatActivity {
         createTeamInstances();
         setupAddTaskButton();
         setupAllTaskButton();
-        setupSettingsButton();
         updateTaskListFromDatabase();
         setupRecyclerView();
+        setupSettingsButton();
     }
 
     @Override
@@ -68,21 +63,6 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         setupRepopulateUsername();
         updateTaskListFromDatabase();
-    }
-
-    void setupRepopulateUsername() {
-        preferences = PreferenceManager.getDefaultSharedPreferences((this));
-        String userName = preferences.getString(USERNAME_TAG, "Need Username");
-        TextView repopulateUsername = findViewById(R.id.MainActivityLabelTextView);
-        repopulateUsername.setText(userName + "'s Tasks");
-    }
-
-    void setupAllTaskButton() {
-        Button allTasksButton = findViewById(R.id.AllTasks);
-        allTasksButton.setOnClickListener(view -> {
-            Intent goToAllTasksIntent = new Intent(MainActivity.this, AllTasks.class);
-            startActivity(goToAllTasksIntent);
-        });
     }
 
     void setupAddTaskButton() {
@@ -93,36 +73,13 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    void setupSettingsButton() {
-        ImageView settingsButton = findViewById(R.id.mainActivitySettingsButton);
-        settingsButton.setOnClickListener(view -> {
-            Intent goToSettingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
-            startActivity(goToSettingsIntent);
+    void setupAllTaskButton() {
+        Button allTasksButton = findViewById(R.id.AllTasks);
+        allTasksButton.setOnClickListener(view -> {
+            Intent goToAllTasksIntent = new Intent(MainActivity.this, AllTasks.class);
+            startActivity(goToAllTasksIntent);
         });
     }
-
-    void setupRecyclerView() {
-            RecyclerView taskListRecyclerView = (RecyclerView) findViewById(R.id.MainActivityTaskRecyclerView);
-            RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
-            taskListRecyclerView.setLayoutManager(layoutManager);
-
-            int spaceInPixels = getResources().getDimensionPixelSize(R.dimen.task_fragment_spacing);
-            taskListRecyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
-                @Override
-                public void getItemOffsets(@NonNull Rect outRect, @NonNull View view, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
-                    super.getItemOffsets(outRect, view, parent, state);
-                    outRect.bottom = spaceInPixels;
-
-                    if(parent.getChildAdapterPosition(view) == tasks.size()-1) {
-                        outRect.bottom = 0;
-                    }
-                }
-            });
-
-
-         adapter = new TaskListRecyclerViewAdapter(tasks, this);
-            taskListRecyclerView.setAdapter(adapter);
-        }
 
     void updateTaskListFromDatabase() {
 
@@ -136,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
                         //IN lab, get this from settings?
                         String teamName = "Android";
                         if(databaseTask.getTeamP() != null
-                       && databaseTask.getTeamP().getTeamName().equals(teamName)) {
+                                && databaseTask.getTeamP().getTeamName().equals(teamName)) {
                             tasks.add(databaseTask);
                         }
                     }
@@ -147,6 +104,44 @@ public class MainActivity extends AppCompatActivity {
                 },
                 failure -> Log.i(TAG, "Did not read tasks successfully")
         );
+    }
+
+    void setupSettingsButton() {
+        ImageView settingsButton = findViewById(R.id.mainActivitySettingsButton);
+        settingsButton.setOnClickListener(view -> {
+            Intent goToSettingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
+            startActivity(goToSettingsIntent);
+        });
+    }
+
+    void setupRecyclerView() {
+        RecyclerView taskListRecyclerView = (RecyclerView) findViewById(R.id.MainActivityTaskRecyclerView);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        taskListRecyclerView.setLayoutManager(layoutManager);
+
+        int spaceInPixels = getResources().getDimensionPixelSize(R.dimen.task_fragment_spacing);
+        taskListRecyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
+            @Override
+            public void getItemOffsets(@NonNull Rect outRect, @NonNull View view, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
+                super.getItemOffsets(outRect, view, parent, state);
+                outRect.bottom = spaceInPixels;
+
+                if(parent.getChildAdapterPosition(view) == tasks.size()-1) {
+                    outRect.bottom = 0;
+                }
+            }
+        });
+
+
+        adapter = new TaskListRecyclerViewAdapter(tasks, this);
+        taskListRecyclerView.setAdapter(adapter);
+    }
+
+    void setupRepopulateUsername() {
+        preferences = PreferenceManager.getDefaultSharedPreferences((this));
+        String userName = preferences.getString(USERNAME_TAG, "Need Username");
+        TextView repopulateUsername = findViewById(R.id.MainActivityLabelTextView);
+        repopulateUsername.setText(userName + "'s Tasks");
     }
 
     void createTeamInstances() {

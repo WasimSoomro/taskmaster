@@ -13,9 +13,9 @@ import com.amplifyframework.api.graphql.model.ModelMutation;
 import com.amplifyframework.api.graphql.model.ModelQuery;
 import com.amplifyframework.core.Amplify;
 import com.amplifyframework.core.model.temporal.Temporal;
+import com.amplifyframework.datastore.generated.model.Team;
 import com.amplifyframework.datastore.generated.model.Task;
 import com.amplifyframework.datastore.generated.model.TaskCategoryEnum;
-import com.amplifyframework.datastore.generated.model.Team;
 import com.google.android.material.snackbar.Snackbar;
 import com.wasim.taskmaster.MainActivity;
 import com.wasim.taskmaster.R;
@@ -25,13 +25,17 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-//import com.amazonaws.util.DateUtils;
+
+//import io.reactivex.rxjava3.core.Completable;
 
 public class AddTaskActivity extends AppCompatActivity {
     private final String TAG = "AddTaskActivity";
 
-    CompletableFuture<List<Team>> teamsFuture = new CompletableFuture<>();
+    CompletableFuture<List<Team>> teamsFuture = null;
 
+    Button submitButton;
+    EditText editTextText;
+    EditText editTextText2;
     Spinner taskCategorySpinner;
     Spinner taskTeamSpinner;
 
@@ -42,17 +46,18 @@ public class AddTaskActivity extends AppCompatActivity {
 
       teamsFuture = new CompletableFuture<>();
 
-//        Spinner taskCategorySpinner = (Spinner) findViewById(R.id.TaskCategorySpinner);
-        taskCategorySpinner = findViewById(R.id.AddTaskActivityTeamSpinner);
-
+        taskCategorySpinner = findViewById(R.id.TaskCategorySpinner);
         taskTeamSpinner = findViewById(R.id.AddTaskActivityTeamSpinner);
-//        setupTaskCategorySpinner(taskCategorySpinner);
-//        setupTaskCategorySpinner();
+        editTextText2 = findViewById(R.id.editTextText2);
+        editTextText = findViewById(R.id.editTextText);
+        submitButton = findViewById(R.id.SubmitButton);
+
+        setupTaskCategorySpinner();
         setupTaskTeamSpinner();
         setupSubmitButton();
     }
 
-    void setupTaskCategorySpinner(Spinner taskCategorySpinner) {
+    void setupTaskCategorySpinner() {
         taskCategorySpinner.setAdapter(new ArrayAdapter<>(
                 this,
                 android.R.layout.simple_spinner_item,
@@ -61,47 +66,36 @@ public class AddTaskActivity extends AppCompatActivity {
     }
 
     void setupSubmitButton() {
-        Button submitButton = (Button) findViewById(R.id.SubmitButton);
-
-        submitButton.setOnClickListener(v -> {
-            String title = ((EditText)findViewById(R.id.editTextText)).getText().toString();
-            String description = ((EditText)findViewById(R.id.editTextText2)).getText().toString();
-//                  String selectedTeamString = taskTeamSpinner.getSelectedItem().toString();
-                String selectedTeamString = (taskTeamSpinner.getSelectedItem() != null) ? taskTeamSpinner.getSelectedItem().toString() : "";
-
+      submitButton.setOnClickListener(v -> {
+            String selectedTeamString = taskTeamSpinner.getSelectedItem().toString();
 
             List<Team> teams = null;
-                  try {
-                      teams = teamsFuture.get();
-                  } catch (InterruptedException ie) {
-                      Log.e(TAG, "InterruptedException while getting contacts");
-                      Thread.currentThread().interrupt();
-                  } catch (ExecutionException ee) {
-                      Log.e(TAG, "ExecutionException while getting contacts");
-                  }
-                  assert teams != null;
-                  Team selectedTeam = teams.stream().filter(c -> c.getTeamName().equals(selectedTeamString)).findAny().orElseThrow(RuntimeException::new);
+            try {
+                teams = teamsFuture.get();
+            } catch (InterruptedException ie) {
+                Log.e(TAG, "InterruptedException while getting contacts");
+                Thread.currentThread().interrupt();
+            } catch (ExecutionException ee) {
+                Log.e(TAG, "ExecutionException while getting contacts");
+            }
+            assert teams != null;
+            Team selectedTeam = teams.stream().filter(c -> c.getTeamName().equals(selectedTeamString)).findAny().orElseThrow(RuntimeException::new);
 
-//        Button submitButton = (Button) findViewById(R.id.SubmitButton);
-//        submitButton.setOnClickListener(v -> {
-//            String title = ((EditText)findViewById(R.id.editTextText)).getText().toString();
-//            String description = ((EditText)findViewById(R.id.editTextText2)).getText().toString();
-////            String currentDateString = com.amazonaws.util.DateUtils.formatISO8601Date(new Date());
-
-            Task newTask = Task.builder()
-                    .title(title)
-                    .body(description)
-//                    .dateCreated(new Temporal.DateTime(new Date(),0))
-                    .taskCategory(TaskCategoryEnum.NEW)
+            Task taskToSubmit = Task.builder()
+                    .title(editTextText.getText().toString())
+                    .body(editTextText2.getText().toString())
+//                    .dateCreated(new Temporal.DateTime(new Date(), 0))
+                    .taskCategory((TaskCategoryEnum) taskCategorySpinner.getSelectedItem())
                     .teamP(selectedTeam)
                     .build();
 
             Amplify.API.mutate(
-                    ModelMutation.create(newTask),  // making a GraphQL request to the cloud
-                    successResponse -> Log.i(TAG, "AddTaskActivity.onCreate(): made a task successfully"),  // success callback
-                    failureResponse -> Log.i(TAG, "AddTaskActivity.onCreate(): failed with this response: " + failureResponse)  // failure callback
+                    ModelMutation.create(taskToSubmit), // making a GraphQL request to cloud
+                    successResponse -> Log.i(TAG, "AddTaskActivity.setupSaveButton(): made product successfully"), // success callback
+                    failureResponse -> Log.i(TAG, "AddTaskActivity.setupSaveButton(): failed with this response " + failureResponse) // failure callback
             );
-            Snackbar.make(findViewById(android.R.id.content), "Task submitted", Snackbar.LENGTH_SHORT).show();
+
+            Snackbar.make(findViewById(R.id.AddTaskActivityView), "Task saved!", Snackbar.LENGTH_SHORT).show();
         });
     }
 
@@ -110,11 +104,11 @@ public class AddTaskActivity extends AppCompatActivity {
                 ModelQuery.list(Team.class),
                 success -> {
                     Log.i(TAG, "Read contacts successfully");
-                    ArrayList<String> contactNames = new ArrayList<>();
+                    ArrayList<String> teamNames = new ArrayList<>();
                     ArrayList<Team> teams = new ArrayList<>();
                     for(Team team : success.getData()) {
                         teams.add(team);
-                        contactNames.add(team.getTeamName());
+                        teamNames.add(team.getTeamName());
                     }
                     teamsFuture.complete(teams);
 
@@ -122,7 +116,7 @@ public class AddTaskActivity extends AppCompatActivity {
                         taskTeamSpinner.setAdapter(new ArrayAdapter<>(
                                 this,
                                 android.R.layout.simple_spinner_item,
-                                contactNames
+                                teamNames
                         ));
                     });
                 },

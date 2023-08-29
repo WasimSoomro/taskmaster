@@ -5,6 +5,7 @@ query GetTask($id: ID!) {
     id
     title
     body
+    dateCreated
     taskCategory
     teamId
     teamP {
@@ -34,6 +35,7 @@ query ListTasks(
       id
       title
       body
+      dateCreated
       taskCategory
       teamId
       teamP {
@@ -61,6 +63,7 @@ query GetTeam($id: ID!) {
         id
         title
         body
+        dateCreated
         taskCategory
         teamId
         createdAt
@@ -118,6 +121,7 @@ query TasksByTeamIdAndTitle(
       id
       title
       body
+      dateCreated
       taskCategory
       teamId
       teamP {

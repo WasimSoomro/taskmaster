@@ -3,7 +3,8 @@
 ![image description](screenshots/Lab28.png)
 ![image description](screenshots/Lab29.png)
 ![image description](screenshots/Lab32.png)
-
+![image description](screenshots/Lab33Teams.png)
+![image description](screenshots/Lab33Task.png)
 Lab 27
 - Added task detail, settings and buttons on homepage
 Lab 28

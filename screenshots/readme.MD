@@ -20,3 +20,7 @@ Lab 33
 - One to many/many to one
 Lab 34
 - Publish to GooglePlay Store
+Lab 36
+- Adding Cognito
+Lab 39
+- Location 

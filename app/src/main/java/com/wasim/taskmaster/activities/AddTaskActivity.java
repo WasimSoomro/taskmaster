@@ -1,7 +1,9 @@
 package com.wasim.taskmaster.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ArrayAdapter;
@@ -16,6 +18,8 @@ import com.amplifyframework.core.model.temporal.Temporal;
 import com.amplifyframework.datastore.generated.model.Team;
 import com.amplifyframework.datastore.generated.model.Task;
 import com.amplifyframework.datastore.generated.model.TaskCategoryEnum;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.material.snackbar.Snackbar;
 import com.wasim.taskmaster.MainActivity;
 import com.wasim.taskmaster.R;
@@ -30,6 +34,7 @@ import java.util.concurrent.ExecutionException;
 
 public class AddTaskActivity extends AppCompatActivity {
     private final String TAG = "AddTaskActivity";
+    private FusedLocationProviderClient fusedLocationProviderClient;
 
     CompletableFuture<List<Team>> teamsFuture = null;
 
@@ -44,7 +49,9 @@ public class AddTaskActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_task2);
 
-      teamsFuture = new CompletableFuture<>();
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getApplicationContext());
+
+        teamsFuture = new CompletableFuture<>();
 
         taskCategorySpinner = findViewById(R.id.TaskCategorySpinner);
         taskTeamSpinner = findViewById(R.id.AddTaskActivityTeamSpinner);
@@ -66,7 +73,10 @@ public class AddTaskActivity extends AppCompatActivity {
     }
 
     void setupSubmitButton() {
-      submitButton.setOnClickListener(v -> {
+        submitButton.setOnClickListener(v -> {
+
+            getUserLastLocation();
+
             String selectedTeamString = taskTeamSpinner.getSelectedItem().toString();
 
             List<Team> teams = null;
@@ -106,7 +116,7 @@ public class AddTaskActivity extends AppCompatActivity {
                     Log.i(TAG, "Read contacts successfully");
                     ArrayList<String> teamNames = new ArrayList<>();
                     ArrayList<Team> teams = new ArrayList<>();
-                    for(Team team : success.getData()) {
+                    for (Team team : success.getData()) {
                         teams.add(team);
                         teamNames.add(team.getTeamName());
                     }
@@ -121,9 +131,35 @@ public class AddTaskActivity extends AppCompatActivity {
                     });
                 },
                 failure -> {
-                   teamsFuture.complete(null);
+                    teamsFuture.complete(null);
                     Log.i(TAG, "Did not read contacts successfully!!");
                 }
         );
     }
+
+    void getUserLastLocation() {
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        fusedLocationProviderClient.getLastLocation().addOnSuccessListener(location -> {
+            if (location == null) {
+                Log.e(TAG, "Location callback was null");
+            }
+            String currentLatitude = Double.toString(location.getLatitude());
+            String currentLongitude = Double.toString(location.getLongitude());
+            Log.i(TAG, "User's last latitude: " + currentLatitude);
+            Log.i(TAG, "User's last longitude: " + currentLongitude);
+            //For lab save these values
+        });
+    }
 }
+
+//        .long(stringReturn[1])
+//                .latitde(stringReturn[0])

@@ -10,15 +10,19 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Rect;
+import android.icu.util.Output;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.Manifest;
 
+import com.amplifyframework.analytics.AnalyticsEvent;
 import com.amplifyframework.api.graphql.model.ModelMutation;
 import com.amplifyframework.api.graphql.model.ModelQuery;
 import com.amplifyframework.core.Amplify;
@@ -29,11 +33,21 @@ import com.wasim.taskmaster.activities.AllTasks;
 import com.wasim.taskmaster.activities.SettingsActivity;
 import com.wasim.taskmaster.adapters.TaskListRecyclerViewAdapter;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private final String TAG = "MainActivity";
+
+    private final MediaPlayer mp = new MediaPlayer();
+
     public static final String TASK_TITLE_EXTRA_TAG = "taskTitle";
     public static final String TASK_DESCRIPTION_EXTRA_TAG = "taskDescription";
     public static final String TASK_STATE_EXTRA_TAG = "taskState";
@@ -43,6 +57,9 @@ public class MainActivity extends AppCompatActivity {
 
     SharedPreferences preferences;
 
+    Button announceButton;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,6 +68,9 @@ public class MainActivity extends AppCompatActivity {
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         tasks = new ArrayList<>();
 
+        announceButton = findViewById(R.id.MainActivityVoiceButton);
+
+        logAppStartup();
 
         requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
 //        createTeamInstances();
@@ -58,6 +78,8 @@ public class MainActivity extends AppCompatActivity {
         setupAllTaskButton();
         setupRecyclerView();
         setupSettingsButton();
+        setupAnnounceButton();
+
     }
 
     @Override
@@ -94,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
 
                         //IN lab, get this from settings?
                         String teamName = "Android";
-                        if(databaseTask.getTeamP() != null
+                        if (databaseTask.getTeamP() != null
                                 && databaseTask.getTeamP().getTeamName().equals(teamName)) {
                             tasks.add(databaseTask);
                         }
@@ -128,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
                 super.getItemOffsets(outRect, view, parent, state);
                 outRect.bottom = spaceInPixels;
 
-                if(parent.getChildAdapterPosition(view) == tasks.size()-1) {
+                if (parent.getChildAdapterPosition(view) == tasks.size() - 1) {
                     outRect.bottom = 0;
                 }
             }
@@ -146,6 +168,44 @@ public class MainActivity extends AppCompatActivity {
         repopulateUsername.setText(userName + "'s Tasks");
     }
 
+
+    
+    void setupAnnounceButton() {
+        announceButton.setOnClickListener(v -> {
+
+            String taskName = ((EditText) findViewById(R.id.editTextText)).getText().toString();
+            Amplify.Predictions.convertTextToSpeech(
+                    taskName,
+                    result -> playAudio(result.getAudioData()),
+                    error -> Log.e(TAG, "Audio conversion of task failed", error)
+            );
+        });
+    }
+
+
+    private void playAudio(InputStream data) {
+        File mp3File = new File(getCacheDir(), "audio,mp3");
+
+    try(
+    OutputStream out = new FileOutputStream(mp3File))
+
+    {
+        byte[] buffer = new byte[8 * 1_024];
+        int bytesRead = 0;
+        while ((bytesRead = data.read(buffer)) != -1) {
+            out.write(buffer, 0, bytesRead);
+        }
+        Log.i(TAG, "audio file finished reading");
+
+        mp.reset();
+        mp.setOnPreparedListener(MediaPlayer::start);
+        mp.setDataSource(new FileInputStream(mp3File).getFD());
+        mp.prepareAsync();
+    } catch(IOException error) {
+        Log.e(TAG, "Error writing audio file", error);
+    }
+
+}
     void createTeamInstances() {
         Team team1 = Team.builder()
                 .teamName("Android")
@@ -169,3 +229,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     }
+
+
+
+

@@ -14,6 +14,15 @@
     "categories": {
       "api": {
         "taskmaster": {}
+      },
+      "auth": {
+        "taskmaster": {}
+      },
+      "analytics": {
+        "taskmaster": {}
+      },
+      "predictions": {
+        "speechGeneratordc212fde": {}
       }
     }
   }
